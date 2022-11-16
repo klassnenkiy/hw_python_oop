@@ -26,7 +26,7 @@ class Training:
     LEN_STEP = 0.65
     M_IN_KM = 1000
     MIN_IN_H = 60
-    training_type = ''
+    
 
     def __init__(self,
                  action: int,
@@ -64,7 +64,6 @@ class Training:
 class Running(Training):
     """Тренировка: бег."""
 
-    training_type = 'RUN'
     CALORIES_MEAN_SPEED_MULTIPLIER = 18
     CALORIES_MEAN_SPEED_SHIFT = 1.79
 
@@ -74,7 +73,7 @@ class Running(Training):
                      * self.get_mean_speed()
                      + self.CALORIES_MEAN_SPEED_SHIFT)
                     * self.weight / self.M_IN_KM
-                    * (self.duration * self.MIN_IN_H))
+                    * self.duration * self.MIN_IN_H)
         return calories
 
 
@@ -101,7 +100,7 @@ class SportsWalking(Training):
                      + ((self.get_mean_speed() * self.KMH_IN_MSEC)**2
                         / (self.height / self.CM_IN_M))
                     * self.CALORIES_SPEED_HEIGHT_MULTIPLIER * self.weight)
-                    * (self.duration * self.MIN_IN_H))
+                    * self.duration * self.MIN_IN_H)
         return calories
 
 
@@ -117,7 +116,7 @@ class Swimming(Training):
                  duration: float,
                  weight: float,
                  length_pool: float,
-                 count_pool: int
+                 count_pool: float
                  ) -> None:
         super().__init__(action, duration, weight)
         self.length_pool = length_pool

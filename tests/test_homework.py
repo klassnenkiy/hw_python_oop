@@ -318,7 +318,7 @@ def test_SportsWalking():
 @pytest.mark.parametrize('input_data, expected', [
     ([9000, 1, 75, 180], 349.2517475250001),
     ([420, 4, 20, 42], 168.11931219846002),
-    ([1206, 12, 6, 12], 151.5443094378559),
+    ([1206, 12, 6, 12], 151.54430943785593),
 ])
 def test_SportsWalking_get_spent_calories(input_data, expected):
     sports_walking = homework.SportsWalking(*input_data)
@@ -351,7 +351,7 @@ def test_Running():
 @pytest.mark.parametrize('input_data, expected', [
     ([9000, 1, 75], 481.90500000000003),
     ([420, 4, 20], 14.488800000000001),
-    ([1206, 12, 6], 12.812471999999998),
+    ([1206, 12, 6], 12.812472),
 ])
 def test_Running_get_spent_calories(input_data, expected):
     running = homework.Running(*input_data)
