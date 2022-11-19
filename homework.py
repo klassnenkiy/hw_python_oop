@@ -1,4 +1,4 @@
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, fields
 from typing import Dict, List, Type
 
 
@@ -40,7 +40,7 @@ class Training:
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        pass
+        raise NotImplementedError('вызываемый метод не реализован')
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
@@ -58,12 +58,11 @@ class Running(Training):
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        calories = ((self.CALORIES_MEAN_SPEED_MULTIPLIER
-                     * self.get_mean_speed()
-                     + self.CALORIES_MEAN_SPEED_SHIFT)
-                    * self.weight / self.M_IN_KM
-                    * self.duration * self.MIN_IN_H)
-        return calories
+        return ((self.CALORIES_MEAN_SPEED_MULTIPLIER
+                * self.get_mean_speed()
+                + self.CALORIES_MEAN_SPEED_SHIFT)
+                * self.weight / self.M_IN_KM
+                * self.duration * self.MIN_IN_H)
 
 
 @dataclass
@@ -73,17 +72,15 @@ class SportsWalking(Training):
     CALORIES_SPEED_HEIGHT_MULTIPLIER = 0.029
     KMH_IN_MSEC = 0.278
     CM_IN_M = 100
-
     height: float
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        calories = ((self.CALORIES_WEIGHT_MULTIPLIER * self.weight
-                     + ((self.get_mean_speed() * self.KMH_IN_MSEC)**2
-                        / (self.height / self.CM_IN_M))
-                    * self.CALORIES_SPEED_HEIGHT_MULTIPLIER * self.weight)
-                    * self.duration * self.MIN_IN_H)
-        return calories
+        return ((self.CALORIES_WEIGHT_MULTIPLIER * self.weight
+                + ((self.get_mean_speed() * self.KMH_IN_MSEC)**2
+                   / (self.height / self.CM_IN_M))
+                * self.CALORIES_SPEED_HEIGHT_MULTIPLIER * self.weight)
+                * self.duration * self.MIN_IN_H)
 
 
 @dataclass
@@ -92,34 +89,39 @@ class Swimming(Training):
     LEN_STEP = 1.38
     CALORIES_WEIGHT_MULTIPLIER = 2
     CALORIES_MEAN_SPEED_SHIFT = 1.1
-
     length_pool: float
     count_pool: float
 
     def get_mean_speed(self) -> float:
         """Получить среднюю скорость движения."""
-        dist_pool = self.length_pool * self.count_pool
-        speed = dist_pool / self.M_IN_KM / self.duration
-        return speed
+        return (self.length_pool * self.count_pool
+                / self.M_IN_KM / self.duration)
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        calories = ((self.get_mean_speed() + self.CALORIES_MEAN_SPEED_SHIFT)
-                    * self.CALORIES_WEIGHT_MULTIPLIER * self.weight
-                    * self.duration)
-        return calories
+        return ((self.get_mean_speed() + self.CALORIES_MEAN_SPEED_SHIFT)
+                * self.CALORIES_WEIGHT_MULTIPLIER * self.weight
+                * self.duration)
 
 
 SPORT_CLASSES: Dict[str, Type[Training]] = {'RUN': Running,
                                             'WLK': SportsWalking,
                                             'SWM': Swimming
                                             }
+COUNT_ERROR: str = ('Неверное число '
+                    'аргументов для {workout_type}, '
+                    'количество полученных '
+                    'аргументов: {count_args}')
 
 
 def read_package(workout_type: str, data: List[int]) -> Training:
     """Прочитать данные полученные от датчиков."""
     if workout_type not in SPORT_CLASSES:
-        raise KeyError(f'Тип тренировки {workout_type} неизвестен')
+        raise KeyError(f'Тип тренировки {workout_type} неизвестен.'
+                       f'Список доступных тренировок {list(SPORT_CLASSES)}')
+    if len(data) != len(fields(SPORT_CLASSES[workout_type])):
+        raise ValueError(COUNT_ERROR
+                         .format(workout_type, count_args=len(data)))
     return SPORT_CLASSES[workout_type](*data)
 
 
